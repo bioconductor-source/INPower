@@ -1,0 +1,3 @@
+#useDynLib(IN.power)
+import(mvtnorm)
+export(INPower)

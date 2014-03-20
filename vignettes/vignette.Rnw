@@ -1,0 +1,86 @@
+%\VignetteIndexEntry{INPower Vignette}
+%\VignettePackage{INPower}
+%\VigetteDepends{INPower}
+
+\documentclass[a4paper]{article}
+
+
+\begin{document}
+
+\title{INPower Package}
+\maketitle
+
+\section*{Introduction}
+An R package to estimate the number of susceptibility loci and the distribution
+ of their effect sizes for a trait on the basis of discoveries from existing 
+ genome-wide association studies (GWASs). 
+
+<<start>>=
+library(INPower)
+@
+
+\section*{Height example}
+
+Get the path to the data which contains a known set of susceptibility SNPs 
+for height. 
+<<data file>>=
+datafile <- system.file("sampleData", "data.rda", package="INPower")
+@
+
+Load and print the data frame.
+<<load data>>=
+load(datafile)
+data
+@
+
+For each known susceptibility SNP, we will need the MAF, effect size and power 
+ of detection.
+<<SNPs>>=
+MAFs  <- data[, "MAF"]
+betas <- data[, "Beta"]
+pow   <- data[, "Power"] 
+@
+
+Suppose that a one-stage design with a genome-wide significant level of 1e-7 
+ is considered for a future study. It is known that the heritability of height
+ is ~0.8. It is of interest to predict the expected number of discoveries with
+ sample sizes from 25,000 to 125,000 with an increment of 25,000.
+ In addition, for the given sample sizes,
+ it is also of interest to find power to detect at least k loci, with k ranging 
+ from 25 to 125 with an increment of 25.  
+<<call1>>=
+INPower(MAFs, betas, pow, span=0.5, binary.outcome=FALSE, 
+        sample.size=seq(25000,125000,by=25000), 
+        signif.lvl=10^(-7), tgv=0.8, k=seq(25,125,by=25))
+@
+
+The function call below shows the same results as the above, 
+ but without the tgv (total genetic variance) argument. As a result, the genetic
+ variance explained is expressed as a percentage of the total variance of the 
+ outcome, not of the total genetic variance.
+<<call2>>=
+INPower(MAFs, betas, pow, span=0.5, binary.outcome=FALSE, 
+        sample.size=seq(25000,125000,by=25000), 
+        signif.lvl=10^(-7), k=seq(25,125,by=25))
+@
+
+Now a two-stage study is considered with all the other conditions remaining the 
+ same (including the estimate of total heritability). 
+ In addition, the selection criterion for SNPs
+ taken toward the second stage is 5e-5 and 30% of the given sample size is 
+ assigned to the first stage (and hence 70% to the second stage). 
+<<call3>>=
+INPower(MAFs, betas, pow, span=0.5, binary.outcome=FALSE,
+        sample.size=seq(25000,125000,by=25000), 
+        signif.lvl=10^(-7), multi.stage.option=list(al=5*10^(-5), pi=0.3),
+        tgv=0.8 , k=seq(25,125,by=25))
+@
+
+\section*{Session Information}
+<<sessionInfo>>=
+sessionInfo()
+@ 
+
+\end{document}
+
+
